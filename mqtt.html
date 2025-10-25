@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <title>MQTT Web Client</title>
+  <meta name="description" content="Lightweight, free MQTT web client — single-file HTML/JS that runs in the browser without installation. Connect, subscribe and publish MQTT messages.">
+  <meta name="keywords" content="MQTT, web client, lightweight, HTML, JavaScript, free, browser">
+  <meta name="robots" content="index,follow">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Lightweight MQTT Web Client">
+  <meta property="og:description" content="Lightweight, free MQTT web client in a single HTML/JS file. Runs in the browser without installation.">
+  <meta property="og:url" content="https://gotoxy.pl/mqtt.html">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Lightweight MQTT Web Client">
+  <meta name="twitter:description" content="Lightweight, free MQTT web client in a single HTML/JS file.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Lightweight MQTT Web Client",
+  "description": "Lightweight, free MQTT web client in a single HTML/JS file. Runs in the browser without installation; allows connecting, subscribing and publishing MQTT messages.",
+  "applicationCategory": "NetworkApplication",
+  "operatingSystem": "Web",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "url": "https://gotoxy.pl/mqtt.html",
+  "codeRepository": "https://github.com/Gotoxypl/mqtt_web_client",
+  "sameAs": [
+    "https://github.com/Gotoxypl/mqtt_web_client"
+  ]
+}
+</script>
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root{
+      --bg-color:#f9f9f9;
+      --text-color:#000;
+      --log-bg:#f0f0f0;
+      --accent-color:#007acc;
+      --input-bg:#fff;
+      --input-text:#000;
+      --input-border:#ccc;
+      --placeholder-color:#666;
+      --status-bg:#eef6ff;
+      --status-text:#024;
+    }
+    @media (prefers-color-scheme:dark){
+      :root{
+        --bg-color:#2a2a2a;
+        --text-color:#dcdcdc;
+        --log-bg:#3a3a3a;
+        --accent-color:#4ea3d1;
+        --input-bg:#444;
+        --input-text:#eee;
+        --input-border:#666;
+        --placeholder-color:#aaa;
+        --status-bg:#1f3646;
+        --status-text:#dbeffb;
+      }
+    }
+    html,body{height:100%;margin:0;padding:0;background:var(--bg-color);color:var(--text-color);font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+    body{overflow-x:hidden;}
+    .container{max-width:1200px;margin:0 auto;padding:18px;box-sizing:border-box;}
+    h2{text-align:center;margin:14px 0 18px 0;}
+    .form-grid{display:grid;grid-template-columns:1fr;gap:10px;width:100%;box-sizing:border-box;padding-inline:6px;}
+    label{font-weight:700;margin-bottom:4px;display:block;}
+    input[type="text"], select{
+      display:block;
+      width:clamp(100%,130%,100vw);
+      max-width:100%;
+      margin-bottom:10px;
+      background:var(--input-bg);
+      color:var(--input-text);
+      border:1px solid var(--input-border);
+      padding:10px;
+      font-size:1rem;
+      box-sizing:border-box;
+      border-radius:6px;
+    }
+    input::placeholder{color:var(--placeholder-color);}
+    button{
+      padding:10px;font-size:1rem;width:100%;background:var(--accent-color);color:#fff;border:none;cursor:pointer;border-radius:6px;
+    }
+    /* status box */
+    #status {
+      display:none;
+      background:var(--status-bg);
+      color:var(--status-text);
+      padding:8px 10px;
+      border-radius:6px;
+      font-weight:600;
+    }
+    .small-note {
+      display:block;
+      font-size:0.78rem;
+      font-weight:400;
+      color:#666;
+      margin-top:4px;
+      line-height:1;
+    }
+  #hero-note {
+    font-size: 0.9rem;
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    background: #eef6ff;
+    color: #012a3a;
+    border: 1px solid rgba(1,42,58,0.08);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.02);
+    display:flex;
+    gap:10px;
+    align-items:center;
+    flex-wrap:wrap;
+    }
+  #hero-note a#hero-github { font-weight:600; color:var(--accent-color); text-decoration:underline;}
+    @media (prefers-color-scheme:dark) {
+      .small-note { color:#aaa; }
+      #hero-note { background: linear-gradient(180deg, #1f2a33, #162427); color: #d6eef6; border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 1px 0 rgba(0,0,0,0.35) inset; }
+      #hero-note a#hero-github { color: #8ecaf0; }
+
+    }
+    #log{margin-top:16px;background:var(--log-bg);padding:10px;max-height:360px;overflow-y:auto;word-wrap:break-word;white-space:pre-wrap;border-radius:6px;}
+
+    .mqtt-message{word-wrap:break-word;white-space:pre-wrap;max-width:100%;}
+    @media(min-width:800px){
+      .form-grid{grid-template-columns:1fr 1fr;}
+      .full-width{grid-column:1 / -1;}
+      #log{grid-column:1 / -1;}
+      input[type="text"], select{width:clamp(100%,120%,80vw);}
+        
+    }
+    @media (max-width: 420px) {
+      #hero-note { font-size:0.85rem; padding:8px; border-radius:6px; }
+    }
+  </style>
+
+</head>
+<body>
+  <div class="container">
+    <div id="hero-note" aria-live="polite">
+      Lightweight, free MQTT web client — single-file HTML/JS; runs in the browser without installation.
+      <a id="hero-github" href="https://github.com/Gotoxypl/mqtt_web_client" target="_blank" rel="noopener noreferrer">Source on GitHub</a>
+    </div>
+
+    <h2 id="title">MQTT Web Client</h2>
+
+    <div class="form-grid">
+      <label for="broker" id="label-broker">Wybierz brokera:</label>
+      <select id="broker" aria-label="broker">
+        <option value="wss://broker.emqx.io:8084/mqtt">EMQX</option>
+        <option value="wss://broker.hivemq.com:8000/mqtt">HiveMQ</option>
+        <option value="wss://test.mosquitto.org:8081/mqtt">Mosquitto</option>
+      </select>
+
+      <!-- label zawierający dopisek jako drugi wiersz -->
+      <label for="topic" id="label-topic">
+        <span id="label-topic-text">Topic:</span>
+        <span id="topic-note" class="small-note" aria-hidden="false">(demo/test != demo/test/)</span>
+      </label>
+      <input type="text" id="topic" aria-describedby="topic-note" placeholder="np. gotoxypl/projekt/test/" />
+
+      <button id="connectBtn" class="full-width" onclick="connectAndSubscribe()">Połącz i subskrybuj</button>
+
+      <!-- status: pojawia się po kliknięciu Połącz -->
+      <div id="status" class="full-width" role="status" aria-live="polite"></div>
+
+      <label for="message" id="label-message" class="full-width">Wiadomość:</label>
+      <input type="text" id="message" class="full-width" placeholder="np. Hello MQTT!" />
+
+      <button id="sendBtn" class="full-width" onclick="publishMessage()">Wyślij wiadomość</button>
+
+      <div id="log" class="full-width" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <script>
+    // translations (z kluczem topicNote)
+    const translations = {
+      pl: {
+        title: "MQTT Web Client",
+        broker: "Wybierz brokera:",
+        topic: "Topic:",
+        connect: "Połącz i subskrybuj",
+        message: "Wiadomość:",
+        send: "Wyślij wiadomość",
+        topicPlaceholder: "np. gotoxypl/projekt/test/",
+        messagePlaceholder: "np. Hello MQTT!",
+        connectedTo: "✅ Połączono z",
+        subscribedTo: "📡 Subskrybowano:",
+        reconnecting: "🔄 Ponowne łączenie...",
+        connectionClosed: "🔌 Połączenie zamknięte – próba ponownego połączenia...",
+        connectionError: "❌ Błąd połączenia:",
+        subscriptionError: "❌ Błąd subskrypcji:",
+        needTopic: "⚠️ Podaj topic przed subskrypcją.",
+        notConnected: "⚠️ Brak połączenia z brokerem.",
+        noTopicSet: "⚠️ Brak ustawionego topicu.",
+        messageReceived: "📨",
+        messageSent: "🚀 Wysłano:",
+        startingConnect: "Zaczynam łączyć...",
+        connecting: "Łączenie...",
+        topicNote: "(demo/test != demo/test/)"
+      },
+      en: {
+        title: "MQTT Web Client",
+        broker: "Choose broker:",
+        topic: "Topic:",
+        connect: "Connect and subscribe",
+        message: "Message:",
+        send: "Send message",
+        topicPlaceholder: "e.g. gotoxypl/projekt/test/",
+        messagePlaceholder: "e.g. Hello MQTT!",
+        connectedTo: "✅ Connected to",
+        subscribedTo: "📡 Subscribed to:",
+        reconnecting: "🔄 Reconnecting...",
+        connectionClosed: "🔌 Connection closed – attempting to reconnect...",
+        connectionError: "❌ Connection error:",
+        subscriptionError: "❌ Subscription error:",
+        needTopic: "⚠️ Please enter a topic before subscribing.",
+        notConnected: "⚠️ Not connected to broker.",
+        noTopicSet: "⚠️ No topic set.",
+        messageReceived: "📨",
+        messageSent: "🚀 Sent:",
+        startingConnect: "Starting to connect...",
+        connecting: "Connecting...",
+        topicNote: "(demo/test != demo/test/)"
+      }
+    };
+
+    // inicjalizacja języka i odniesienia t
+    let langCode = navigator.language && navigator.language.startsWith("pl") ? "pl" : "en";
+    let t = translations[langCode];
+
+    // applyLanguage ustawia wszystkie teksty DOM, w tym topic-note
+    function applyLanguage(){
+      // upewnij się, że elementy istnieją - wywołuj po DOMContentLoaded lub skrypt na końcu body
+      const titleEl = document.getElementById("title");
+      const labelBrokerEl = document.getElementById("label-broker");
+      const labelTopicTextEl = document.getElementById("label-topic-text");
+      const connectBtn = document.getElementById("connectBtn");
+      const labelMessageEl = document.getElementById("label-message");
+      const sendBtn = document.getElementById("sendBtn");
+      const topicInput = document.getElementById("topic");
+      const messageInput = document.getElementById("message");
+      const noteEl = document.getElementById('topic-note');
+
+      if(titleEl) titleEl.textContent = t.title;
+      if(labelBrokerEl) labelBrokerEl.textContent = t.broker;
+      
+      if (labelTopicTextEl) labelTopicTextEl.textContent = t.topic;
+      if(connectBtn) connectBtn.textContent = t.connect;
+      if(labelMessageEl) labelMessageEl.textContent = t.message;
+      if(sendBtn) sendBtn.textContent = t.send;
+      if(topicInput) topicInput.placeholder = t.topicPlaceholder;
+      if(messageInput) messageInput.placeholder = t.messagePlaceholder;
+      if(noteEl) noteEl.textContent = t.topicNote || '';
+    }
+
+    // wywołanie po załadowaniu DOM
+    document.addEventListener('DOMContentLoaded', () => {
+      // ustaw t zgodnie z langCode (jeśli chcesz wymusić inny język, ustaw langCode wcześniej)
+      t = translations[langCode];
+      applyLanguage();
+
+      // dodatkowo: wciśnięcie Enter w polu message wyśle wiadomość
+      const msg = document.getElementById('message');
+      if(msg){
+        msg.addEventListener('keydown', (e) => {
+          if(e.key === 'Enter'){
+            e.preventDefault();
+            publishMessage();
+          }
+        });
+      }
+    });
+
+    // --- MQTT client state ---
+    let client = null;
+    let currentTopic = '';
+    const DEFAULT_TOPIC = 'gotoxypl/projekt/test/';
+
+    function showStatus(msg){
+      const status = document.getElementById('status');
+      if(!status) return;
+      status.textContent = msg;
+      status.style.display = 'block';
+    }
+    function hideStatus(){
+      const status = document.getElementById('status');
+      if(!status) return;
+      status.style.display = 'none';
+      status.textContent = '';
+    }
+
+    function connectAndSubscribe(){
+      const brokerUrl = document.getElementById('broker').value;
+      let topic = document.getElementById('topic').value.trim();
+
+      // If no topic provided, automatically use DEFAULT_TOPIC (and set input so user sees it)
+      if(!topic){
+        topic = DEFAULT_TOPIC;
+        const topicInput = document.getElementById('topic');
+        if(topicInput) topicInput.value = topic;
+      }
+
+      currentTopic = topic;
+
+      // show starting status immediately
+      showStatus(t.startingConnect);
+
+      // close existing if connected
+      if(client && client.connected){
+        try{ client.end(true); }catch(e){}
+      }
+
+      // small delay to let user read "starting" then set "connecting..."
+      setTimeout(() => showStatus(t.connecting), 350);
+
+      client = mqtt.connect(brokerUrl, {
+        clientId: 'web-' + Math.random().toString(16).slice(2,10),
+        clean: true,
+        reconnectPeriod: 2000,
+        keepalive: 60
+      });
+
+      client.on('connect', () => {
+        hideStatus();
+        log(`${t.connectedTo} ${brokerUrl}`);
+        client.subscribe(topic, { qos: 1 }, (err) => {
+          if(!err){
+            log(`${t.subscribedTo} ${topic} (QoS 1)`);
+          } else {
+            log(`${t.subscriptionError} ${err.message}`);
+          }
+        });
+      });
+
+      client.on('message', (topic, message) => {
+        const now = new Date();
+        const timestamp = now.toLocaleString();
+        log(`${t.messageReceived} [${timestamp}] ${topic}: ${message.toString()}`);
+      });
+
+      client.on('error', (err) => {
+        showStatus(`${t.connectionError} ${err && err.message ? err.message : String(err)}`);
+        log(`${t.connectionError} ${err && err.message ? err.message : String(err)}`);
+        setTimeout(hideStatus, 3000);
+      });
+
+      client.on('close', () => {
+        showStatus(t.connectionClosed);
+        log(t.connectionClosed);
+        setTimeout(hideStatus, 2000);
+      });
+
+      client.on('reconnect', () => {
+        showStatus(t.reconnecting);
+        log(t.reconnecting);
+      });
+    }
+
+    function publishMessage(){
+      const msgEl = document.getElementById('message');
+      const input = msgEl ? msgEl.value.trim() : '';
+      const msg = input === '' ? 'Hello MQTT!' : input;
+
+      if(!client || !client.connected){
+        log(t.notConnected);
+        return;
+      }
+      if(!currentTopic){
+        log(t.noTopicSet);
+        return;
+      }
+
+      client.publish(currentTopic, msg, { qos: 1 }, (err) => {
+        if(err){
+          log(`${t.connectionError} ${err.message}`);
+        } else {
+          log(`${t.messageSent} "${msg}" → ${currentTopic} (QoS 1)`);
+          if(msgEl){
+            msgEl.value = '';
+            msgEl.focus();
+          }
+        }
+      });
+    }
+
+    function log(text){
+      const el = document.getElementById('log');
+      if(!el) return;
+      const p = document.createElement('div');
+      p.className = 'mqtt-message';
+      p.innerHTML = text;
+      el.appendChild(p);
+      el.scrollTop = el.scrollHeight;
+    }
+
+    // Optional helper to force language (example)
+    // use this if you want to programmatically change language at runtime:
+    function setLanguage(code){
+      if(!translations[code]) return;
+      langCode = code;
+      t = translations[langCode];
+      applyLanguage();
+    }
+  </script>
+</body>
+</html>
