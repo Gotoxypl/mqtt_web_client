@@ -173,6 +173,23 @@
 
       <button id="sendBtn" class="full-width" onclick="publishMessage()">Wyślij wiadomość</button>
 
+      <section style="margin-top: 40px; padding: 20px; border-top: 1px solid #ccc; font-family: sans-serif; line-height: 1.6;">
+    <h2>Darmowy Klient MQTT Web Online</h2>
+    <p>Narzędzie <strong>mqtt.gotoxy.pl</strong> to lekki, darmowy klient MQTT działający bezpośrednio w przeglądarce internetowej. Pozwala na szybkie testowanie połączeń z brokerami MQTT (takimi jak HiveMQ, EMQX czy Mosquitto), subskrybowanie wybranych tematów (topics) oraz wysyłanie testowych wiadomości tekstowych.</p>
+    
+    <h3>Jak testować połączenie MQTT w przeglądarce?</h3>
+    <ul>
+        <li><strong>Wybierz brokera:</strong> Wskaż jeden z publicznych serwerów testowych lub wpisz własny adres.</li>
+        <li><strong>Zdefiniuj temat (Topic):</strong> Wpisz ścieżkę tematu, na którą chcesz wysłać lub z której chcesz odbierać wiadomości (np. <code>home/livingroom/temperature</code>).</li>
+        <li><strong>Połącz i subskrybuj:</strong> Kliknij przycisk, aby nawiązać bezpieczne połączenie WebSocket z brokerem.</li>
+    </ul>
+
+    <h3>Dlaczego warto korzystać z klienta MQTT przez serwer WWW?</h3>
+    <p>Aplikacja nie wymaga instalacji żadnego oprogramowania zewnętrznego ani wtyczek. Całość opiera się na czystym skrypcie JavaScript i protokole WebSockets, dzięki czemu możesz diagnozować działanie swoich urządzeń IoT, ESP32 czy systemów automatyki domowej z dowolnego urządzenia.</p>
+     </section>
+
+
+      
       <div id="log" class="full-width" aria-live="polite"></div>
     </div>
   </div>
