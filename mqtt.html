@@ -192,6 +192,43 @@
       
       <div id="log" class="full-width" aria-live="polite"></div>
     </div>
+
+
+    <!-- WERSJA POLSKA -->
+      <section id="desc-pl" style="margin: 40px auto 0 auto; padding: 20px 0; border-top: 1px solid #ccc; font-family: sans-serif; line-height: 1.6; width: 100%; display: none;">
+          <h2>Darmowy Klient MQTT Web Online</h2>
+          <p>Narzędzie <strong>mqtt.gotoxy.pl</strong> to lekki, darmowy klient MQTT działający bezpośrednio w przeglądarce internetowej. Pozwala na szybkie testowanie połączeń z brokerami MQTT (takimi jak HiveMQ, EMQX czy Mosquitto), subskrybowanie wybranych tematów (topics) oraz wysyłanie testowych wiadomości tekstowych.</p>
+      
+      
+          <h3>Jak przetestować połączenie MQTT w przeglądarce?</h3>
+      
+          <ul>
+              <li><strong>Wybierz brokera:</strong> Wskaż jeden z publicznych serwerów testowych lub wpisz własny adres.</li>
+              <li><strong>Zdefiniuj temat (Topic):</strong> Wpisz ścieżkę tematu, na którą chcesz wysłać lub z której chcesz odbierać wiadomości (np. <code>home/livingroom/temperature</code>).</li>
+              <li><strong>Połącz i subskrybuj:</strong> Kliknij przycisk, aby nawiązać bezpieczne połączenie WebSocket z brokerem.</li>
+          </ul>
+      
+          <h3>Dlaczego warto korzystać z klienta MQTT przez serwer WWW?</h3>
+          <p>Aplikacja nie wymaga instalacji żadnego oprogramowania zewnętrznego ani wtyczek. Całość opiera się na czystym skrypcie JavaScript i protokole WebSockets, dzięki czemu możesz diagnozować działanie swoich urządzeń IoT, ESP32 czy systemów automatyki domowej z dowolnego urządzenia.</p>
+      </section>
+      
+      <!-- WERSJA ANGIELSKA -->
+      <section id="desc-en" style="margin: 40px auto 0 auto; padding: 20px 0; border-top: 1px solid #ccc; font-family: sans-serif; line-height: 1.6; width: 200%; display: none;">
+          <h2>Free MQTT Web Client Online</h2>
+          <p>The <strong>mqtt.gotoxy.pl</strong> tool is a lightweight, free browser-based MQTT client. It allows you to quickly test connections to MQTT brokers (such as HiveMQ, EMQX, or Mosquitto), subscribe to specific topics, and publish test text messages instantly.</p>
+      
+          <h3>How to Test an MQTT Connection in Your Browser</h3>
+      
+          <ul>
+              <li><strong>Choose a Broker:</strong> Select one of the public test servers or enter your custom broker address.</li>
+              <li><strong>Define a Topic:</strong> Enter the topic path you want to publish to or receive messages from (e.g., <code>home/livingroom/temperature</code>).</li>
+              <li><strong>Connect &amp; Subscribe:</strong> Click the button to establish a secure WebSocket connection with the broker.</li>
+          </ul>
+      
+          <h3>Why Use a Web-Based MQTT Client?</h3>
+          <p>This application requires no installation, external software, or plugins. Built entirely with pure JavaScript and WebSockets, it lets you diagnose your IoT devices, ESP32 boards, or smart home automation systems from any device with a web browser.</p>
+      </section>
+
   </div>
 
   <script>
@@ -425,5 +462,20 @@
       applyLanguage();
     }
   </script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Pobieramy język przeglądarki użytkownika (np. "pl", "en-US", "de")
+        var userLang = navigator.language || navigator.userLanguage;
+
+        // Sprawdzamy, czy język zaczyna się od "pl"
+        if (userLang.startsWith('pl')) {
+            document.getElementById('desc-pl').style.display = 'block';
+        } else {
+            // Dla każdego innego języka pokazujemy wersję angielską
+            document.getElementById('desc-en').style.display = 'block';
+        }
+    });
+</script>
+
 </body>
 </html>
