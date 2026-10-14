@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mqtt.gotoxy.pl/sitemap.xml
